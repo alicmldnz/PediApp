@@ -1,6 +1,6 @@
 from .extensions import db
 from flask import render_template, redirect, url_for, flash, request,Blueprint,jsonify,make_response,session
-from .models import User,Event,Session, summary_calculation
+from .models import User,Event,Session, Assignment
 from flask_login import login_user, logout_user, current_user,login_required
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,6 +8,8 @@ from datetime import datetime, timedelta, date
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+
+
 
 #routesa initten app geliyor 
 main=Blueprint("main", __name__)
@@ -29,14 +31,14 @@ def register_page():
         return jsonify(message="Bu kullanıcı adı zaten kullanılıyor."),409
     
     
-    if User.query.filter_by(email_address=data["email"]).first():
+    if User.query.filter_by(email_address=data["email_address"]).first():
         return jsonify(message="Bu email zaten kullanılıyor."),409
     
     hashed_password=generate_password_hash(data["password"])
     
     user_to_create = User(id=unique_id,
                         username=data['username'],
-                          email_address=data['email'],
+                          email_address=data['email_address'],
                           password_hash=hashed_password)  # Burada şifre hash'lenmelidir
      # Kullanıcıyı veritabanına ekle
     
@@ -57,7 +59,7 @@ def login_page():
     if not data:
         return make_response("invalid content type",415)
     
-    user=User.query.filter_by(username=data["username"]).first()
+    user=User.query.filter_by(email_address=data["email_address"]).first()
     #kullanıcı adı bulunduysa
  
     if (user):    
@@ -127,6 +129,29 @@ def logout_page():
     flash("You have been logged out!", category='info')
     return redirect(url_for("home_page"))
 
+
+@login_required
+@main.route('/api/assignment', methods=['POST'])
+def create_assignment():
+    data = request.get_json()
+    unique_id=str(uuid.uuid4())
+    session = Session.query.first()
+    consultant = User.query.filter_by(id=session.user_id).first()
+
+    new_assignment = Assignment(assignment_id=unique_id,
+                        consultant_id=consultant.id,
+                        subject_name=data["subject_name"],
+                        goal=data["goal"],
+                        #behaviour=data["behaviour"],
+                        date=data["date"],
+                        #time=data["time"])
+    ) 
+    db.session.add(new_assignment)
+    db.session.commit()
+
+  
+
+    return jsonify({'message': 'new assignment created'}), 201
 
 
 

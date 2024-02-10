@@ -1,1 +1,6 @@
- pip install -r requirements.txt 
+ pip install -r requirements.txt
+ $env:FLASK_APP = "run.py" 
+ myenv\Scripts\activate 
+ flask shell
+ from website import app 
+ db.create_all()
