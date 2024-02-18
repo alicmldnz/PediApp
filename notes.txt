@@ -1,17 +1,12 @@
  pip install -r requirements.txt
-<<<<<<< HEAD
  set FLASK_APP="run.py"
-=======
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
  $env:FLASK_APP = "run.py" 
  myenv\Scripts\activate 
  flask shell
  from website import app 
-<<<<<<< HEAD
  db.create_all()
 
 flask hatası verirse:
- python -m flask shell
-=======
- db.create_all()
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
+python -m flask shell
+python -m flask db init
+python -m flask db migrate

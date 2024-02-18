@@ -17,7 +17,7 @@ class User(db.Model, UserMixin): #User=Parent
     username = db.Column(db.String(),nullable=False, unique=True)
     email_address = db.Column(db.String(), nullable=False, unique=True)
     password_hash = db.Column(db.Text(), nullable=False)
-    image_url = db.Column(db.String(),nullable=False)
+    image_url = db.Column(db.String(),nullable=True)
  
 
 class Consultant(db.Model, UserMixin): 
@@ -25,7 +25,6 @@ class Consultant(db.Model, UserMixin):
     id = db.Column(db.Text(), primary_key=True)
     image_url = db.Column(db.String(),nullable=True)
     name = db.Column(db.String(),nullable=False)
-    title = db.Column(db.String(),nullable=True)
     password_hash = db.Column(db.Text(), nullable=False)
     child_name = db.Column(db.String(),nullable=True)
     status = db.Column(db.String(),nullable=True)
@@ -56,7 +55,7 @@ class Assignment(db.Model):
     parent_id = db.Column(db.Text(), db.ForeignKey('users.id'))
     subject_name=db.Column(db.String(),nullable=False)
     child_id = db.Column(db.Text(), db.ForeignKey('users.id'))
-    achievement_id = db.Column(db.Text())
+    achievement_id = db.Column(db.Text(),db.ForeignKey('achievements.id'))
     #table_vars= db.Column(db.Integer(),nullable=False)
     date=db.Column(db.DateTime, nullable=False)
     time=db.Column(db.DateTime, nullable=True)
@@ -65,7 +64,7 @@ class Assignment(db.Model):
 
 class Achievement(db.Model):
     __tablename__="achievements"
-    id= db.Column(db.Text(), db.ForeignKey('assignments.achievement_id'), primary_key=True)
+    id= db.Column(db.Text(), primary_key=True)
     content= db.Column(db.Text(),nullable=False)
     day=db.Column(db.Integer(),nullable=False)
 
@@ -73,7 +72,7 @@ class Activity(db.Model):
     __tablename__="activities"
     id = db.Column(db.Text(), primary_key=True)
     type = db.Column(db.Integer(),nullable=False)
-    image_url = db.Column(db.String(),nullable=False)
+    image_url = db.Column(db.String(),nullable=True)
     subject= db.Column(db.String(),nullable=False)
     consultant_id = db.Column(db.Text(), db.ForeignKey('consultants.id'))
     #notes
@@ -83,8 +82,8 @@ class Course(db.Model):
     id = db.Column(db.Text(), primary_key=True)
     name= db.Column(db.String(),nullable=False)
     consultant_id = db.Column(db.Text(), db.ForeignKey('consultants.id'))
-    image_url= db.Column(db.String(),nullable=False)
-    video_url= db.Column(db.String(),nullable=False)
+    image_url= db.Column(db.String(),nullable=True)
+    video_url= db.Column(db.String(),nullable=True)
 
 class Note(db.Model):
     id = db.Column(db.Text(), primary_key=True)

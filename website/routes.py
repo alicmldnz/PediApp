@@ -89,6 +89,7 @@ def check_session_active(session_id):
 @login_required
 @main.route('/logout')
 def logout_page():
+
     logout_user()
     flash("You have been logged out!", category='info')
     return redirect(url_for("home_page"))
@@ -106,21 +107,22 @@ def create_assignment():
     session=Session.query.first() 
     consultant = Consultant.query.filter_by(id=session.id).first() #Session id ile eşit id'si olan consultant alınır.
     relation = PCRelation.query.filter_by(consultant_id=consultant.id).first()
-
+    new_achievement = Achievement(id=unique_id_2,
+                        content=data["content"],
+                            day=data["day"]
+    ) 
+    
     new_assignment = Assignment(id=unique_id,
                         consultant_id=consultant.id,
                         subject_name=data["subject_name"],
                         objective=data["objective"],
-                        achievement_id=unique_id_2,
+                        achievement_id=new_achievement.id,
                         date=data["date"],
                         parent_id=relation.id
                         #time=data["time"])
     )
 
-    new_achievement = Achievement(id=new_assignment.achievement_id,
-                        content=data["content"],
-                        day=data["day"]
-    ) 
+    
 
 
     db.session.add(new_assignment)
@@ -229,7 +231,7 @@ def create_meeting():
     consultant = Consultant.query.filter_by(id=session.id).first() #Session id ile eşit id'si olan consultant alınır.
     relation = PCRelation.query.filter_by(consultant_id=consultant.id).first() #consultant'ın hangi relation içinde olduğu bulunur.
     new_meeting = Meeting(id=unique_id,
-                        meet_url=data["meet_url"],
+                        url=data["url"],
                         relation_id=relation.id
     ) 
 
