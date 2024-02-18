@@ -1,0 +1,7 @@
+__pycache__
+.vscode
+instance
+myenv
+.idea
+migrations
+**/.DS_Store
