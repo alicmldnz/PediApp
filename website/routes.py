@@ -249,3 +249,15 @@ def show_meeting():
     url=meeting.url
 
     return jsonify(url), 201
+
+@login_required
+@main.route('/api/assignment/show', methods=['POST'])
+def show_assignment():
+    
+    session=Session.query.first() 
+    user = User.query.filter_by(id=session.id).first() #Session id ile eşit id'si olan user alınır.
+    assignment = Assignment.query.filter_by(parent_id=user.id).first()
+    if not assignment:
+        return make_response("assignment couldnt find",415)
+  
+    return jsonify(assignment), 201
