@@ -11,11 +11,7 @@ def create_app():
     app=Flask(__name__)
     CORS(app)
     
-<<<<<<< HEAD
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123123@localhost:5432/postgres'
-=======
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:fb435436@localhost:5432/postgres'
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
     app.config['SECRET_KEY']='sgdfg'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Bu satır SQLAlchemy uyarılarını engeller
     

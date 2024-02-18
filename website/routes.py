@@ -1,17 +1,10 @@
 from .extensions import db
 from flask import render_template, redirect, url_for, flash, request,Blueprint,jsonify,make_response,session
-<<<<<<< HEAD
-from .models import User,Session, Assignment, Consultant, Achievement, Activity, Meeting
-=======
-from .models import User,Event,Session, Assignment
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
+from .models import User,Session, Assignment, Consultant, Achievement, Activity, Meeting, PCRelation
 from flask_login import login_user, logout_user, current_user,login_required
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, date
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 
 
 
@@ -75,19 +68,12 @@ def login_page():
     else:
         return jsonify(message="Başarısız"), 404
     
-<<<<<<< HEAD
 
 def create_session(user_id):
     new_session = Session(
         id=user_id,
         expires_at=datetime.utcnow() + timedelta(minutes=30),
         is_parent=True
-=======
-def create_session(user_id):
-    new_session = Session(
-        user_id=user_id,
-        expires_at=datetime.utcnow() + timedelta(minutes=30)
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
     )
     db.session.add(new_session)
     db.session.commit()
@@ -99,44 +85,6 @@ def check_session_active(session_id):
         return True
     return False
 
-<<<<<<< HEAD
-=======
-#@login_required
-@main.route('/api/events', methods=['POST'])
-def create_event():
-    data = request.get_json()
-    #title date owner id
-    unique_id=str(uuid.uuid4())
-    data["category"]= str(data["category"]).lower()
-    categories=["hobby", "study", "sports", "chores","miscellaneous"]
-    
-    if data["category"] not in categories:
-        return jsonify("Category is not valid!"),201
-    else:
-        new_event = Event(id=unique_id,
-                      title=data['title'], 
-                      date=data['date'],
-                      start_time=data["start_time"],
-                      end_time=data["end_time"],
-                      category=data["category"])
-        new_event.duration_calculation()
-        db.session.add(new_event)
-        db.session.commit()
-  
-
-    return jsonify({'message': 'new event created'}), 201
-
-@login_required
-@main.route('/api/events/<date>', methods=['GET'])
-def get_events(date):
-    date = datetime.strptime(date, '%Y-%m-%d').date()
-    events = Event.query.filter_by(date=date).all()
-    return jsonify([{
-        'id': event.id,
-        'title': event.title,
-        'date': event.date,
-    } for event in events])
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
             
 @login_required
 @main.route('/logout')
@@ -147,32 +95,36 @@ def logout_page():
 
 
 @login_required
-@main.route('/api/assignment', methods=['POST'])
+@main.route('/api/assignment', methods=['GET'])
 def create_assignment():
     data = request.get_json()
+    if not data:
+        return make_response("invalid data type",415)
+    
     unique_id=str(uuid.uuid4())
-<<<<<<< HEAD
+    unique_id_2=str(uuid.uuid4())
     session=Session.query.first() 
     consultant = Consultant.query.filter_by(id=session.id).first() #Session id ile eşit id'si olan consultant alınır.
+    relation = PCRelation.query.filter_by(consultant_id=consultant.id).first()
 
     new_assignment = Assignment(id=unique_id,
                         consultant_id=consultant.id,
                         subject_name=data["subject_name"],
                         objective=data["objective"],
-=======
-    session = Session.query.first()
-    consultant = User.query.filter_by(id=session.user_id).first()
-
-    new_assignment = Assignment(assignment_id=unique_id,
-                        consultant_id=consultant.id,
-                        subject_name=data["subject_name"],
-                        goal=data["goal"],
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
-                        #behaviour=data["behaviour"],
+                        achievement_id=unique_id_2,
                         date=data["date"],
+                        parent_id=relation.id
                         #time=data["time"])
+    )
+
+    new_achievement = Achievement(id=new_assignment.achievement_id,
+                        content=data["content"],
+                        day=data["day"]
     ) 
+
+
     db.session.add(new_assignment)
+    db.session.add(new_achievement)
     db.session.commit()
 
   
@@ -181,11 +133,6 @@ def create_assignment():
 
 
 
-
-
-
-
-<<<<<<< HEAD
 @main.route('/register/consultant', methods=['GET', 'POST'])
 def register_page_consultant():
 
@@ -252,41 +199,53 @@ def check_session_active(session_id):
     return False
 
 
-@main.route('/achievement', methods=['GET'])
-def create_achievement():
-    data=request.get_json()
-    unique_id=str(uuid.uuid4())
+#@login_required
+@main.route('/relation', methods=['GET'])
+def create_relation():
+    data = request.get_json()
+
     if not data:
-        return make_response("invalid content type",415)
+        return make_response("invalid data type",415)
     
-    new_achievement = Achievement(id=unique_id,
-                        content=data["content"],
-                        day=data["day"]
+    new_relation = PCRelation(id=data["id"],
+                        consultant_id=data["consultant_id"],
     ) 
-    db.session.add(new_achievement)
+
+
+    db.session.add(new_relation)
     db.session.commit()
 
-  
 
-    return jsonify({'message': 'new achievement created'}), 202
+    return jsonify({'message': 'new relation created'}), 201
 
-@main.route('/achievement/add', methods=['GET']) #daha kodlanmaya başlanmadı
-def add_achievement():
-    data=request.get_json()
-    unique_id=str(uuid.uuid4())
+@main.route('/meeting', methods=['GET'])
+def create_meeting():
+    data = request.get_json()
     if not data:
-        return make_response("invalid content type",415)
+        return make_response("invalid data type",415)
     
-    new_achievement = Achievement(id=unique_id,
-                        content=data["content"],
-                        day=data["day"]
+    unique_id=str(uuid.uuid4())
+    session=Session.query.first() 
+    consultant = Consultant.query.filter_by(id=session.id).first() #Session id ile eşit id'si olan consultant alınır.
+    relation = PCRelation.query.filter_by(consultant_id=consultant.id).first() #consultant'ın hangi relation içinde olduğu bulunur.
+    new_meeting = Meeting(id=unique_id,
+                        meet_url=data["meet_url"],
+                        relation_id=relation.id
     ) 
-    db.session.add(new_achievement)
+
+
+    db.session.add(new_meeting)
     db.session.commit()
 
-  
 
-    return jsonify({'message': 'new achievement created'}), 202
-=======
+    return jsonify({'message': 'new meeting created'}), 201
 
->>>>>>> f248a0839f0949b660441640322db1512dc4b7e2
+@main.route('/meeting/show', methods=['POST'])
+def show_meeting():
+    session=Session.query.first() 
+    user = User.query.filter_by(id=session.id).first() #Session id ile eşit id'si olan user alınır.
+    relation = PCRelation.query.filter_by(id=user.id).first() #user'ın hangi relation içinde olduğu bulunur.
+    meeting=Meeting.query.filter_by(relation_id=relation.id).first()
+    url=meeting.url
+
+    return jsonify(url), 201
