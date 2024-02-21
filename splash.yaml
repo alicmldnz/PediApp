@@ -1,0 +1,8 @@
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#000000"
+  image: "assets/PediAppLogoSiyahArkaPlan.png"
+  image_dark: "assets/PediAppLogoBeyazArkaPlan.png"
+
+
+  #  - 'ios/Runner/Info-Release.plist'
